@@ -24,26 +24,23 @@ export default (React, Rx) => function recycle (component) {
         selectId: registerListeners(this.listeners, 'id'),
         lifecycle: new Rx.Subject(),
         state: new Rx.Subject(),
-        props: new Rx.Subject()
+        props: new Rx.Subject(),
+        store: new Rx.Subject()
       }
 
       this.componentState = {...component.initialState}
 
-      // create redux store stream
       if (this.context && this.context.store) {
-        const store = this.context.store
-        this.sources.store = new Rx.BehaviorSubject(store.getState())
-        store.subscribe(() => {
-          this.sources.store.next(store.getState())
-        })
-      }
-
-      // dispatch events to redux store
-      if (component.dispatch && this.context && this.context.store) {
-        const events$ = Rx.Observable.merge(...forceArray(component.dispatch(this.sources)))
-        this.__eventsSubsription = events$.subscribe((a) => {
-          this.context.store.dispatch(a)
-        })
+        // set global store reference
+        this.context.store.subscribe(this.sources.store)
+        
+        // dispatch events to global reducer
+        if (component.dispatch && this.context && this.context.reducer) {
+          const events$ = Rx.Observable.merge(...forceArray(component.dispatch(this.sources)))
+          this.__eventsSubsription = events$.subscribe((a) => {
+            this.context.reducer.next(a)
+          })
+        }
       }
 
       // handling component state with update() stream
@@ -108,7 +105,8 @@ export default (React, Rx) => function recycle (component) {
   }
 
   RecycleComponent.contextTypes = {
-    store: PropTypes.object
+    store: PropTypes.object,
+    reducer: PropTypes.object
   }
   RecycleComponent.propTypes = component.propTypes
   RecycleComponent.displayName = component.displayName

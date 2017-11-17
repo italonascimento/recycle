@@ -1,7 +1,6 @@
 import { Observable } from 'rxjs'
-import * as React from 'react'
-import * as PropTypes from 'prop-types'
-import { AnyAction } from 'redux'
+import * as React from 'react';
+import * as PropTypes from 'prop-types';
 
 
 export declare const recycle: recycle.Recycle
@@ -149,7 +148,7 @@ declare namespace recycle {
          * sources.store.map((state: { count: number }) => state.count)
          *
          */
-        store?: Observable<R>
+        store: Observable<R>
 
         /**
          * Returns a stream of your local component state
@@ -201,9 +200,9 @@ declare namespace recycle {
          *
          *
          * @param sources
-         * @returns {Observable<AnyAction>[]} Array of Redux action streams
+         * @returns {Observable<Reducer>[]} Array of reducers
          */
-        dispatch?: (sources: recycle.Sources<S, R>) => Observable<AnyAction>[]
+        dispatch?: (sources: recycle.Sources<S, R>) => Observable<ReducerFn<S, R>>[]
 
         /**
          * Acts like a Redux reducer for the component local state
